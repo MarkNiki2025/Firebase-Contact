@@ -1,35 +1,57 @@
-import NavBar from './NavBar';
-import NoContact from './NoContact';
-import PersonCard from './PersonCard';
-import {db} from '../config/firebase';
-import { collection, getDocs } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import NavBar from "./NavBar";
+import NoContact from "./NoContact";
+import PersonCard from "./PersonCard";
+import { db } from "../config/firebase";
+import { collection, getDocs } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import Modal from "./Modal";
+
 function App() {
-  const [contacts, setContacts] = useState([])
-  useEffect(() =>{
-    async function getContact () {
+  const [contacts, setContacts] = useState([]);
+  const [buttonIsClicked, setbuttonIsClicked] = useState(false);
+  const [buttonAddContactIsClicked, setbuttonAddContactIsClicked] = useState(false);
+
+  useEffect(() => {
+    async function getContact() {
       try {
-        const contactRef = collection(db, 'contact');
-        console.log(contactRef)
-        const contactSnapShot = await getDocs(contactRef)
-        console.log(contactSnapShot)
-        const contactLists = contactSnapShot.docs.map((doc) => doc.data())
-        console.log(contactLists)
-        setContacts(contactLists)
+        const contactRef = collection(db, "contact");
+        const contactSnapShot = await getDocs(contactRef);
+        const contactLists = contactSnapShot.docs.map((doc) => doc.data());
+        setContacts(contactLists);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     }
-    getContact()
-  },[])
+    getContact();
+  }, []);
+
+  function toggleButton() {
+    setbuttonIsClicked(!buttonIsClicked);
+  }
+
+  function toggleButtonAddContact() {
+    setbuttonAddContactIsClicked(!buttonAddContactIsClicked);
+    console.log(buttonAddContactIsClicked);
+  }
+
   return (
-    <div className="h-screen flex flex-col  ">
-      <NavBar />
-      {contacts.length > 0 ? contacts.map((item,index) =>{
-        return <PersonCard email={item.email} name={item.name} key={index}/>
-      }) : <NoContact />}
+    <div className="flex h-screen flex-col">
+      <NavBar setbuttonIsClicked={toggleButton} />
+      {contacts.length > 0 ? (
+        contacts.map((item, index) => {
+          return <PersonCard email={item.email} name={item.name} key={index} />;
+        })
+      ) : (
+        <NoContact />
+      )}
+      {buttonIsClicked ? (
+        <Modal
+          toggleButtonAddContact={toggleButtonAddContact}
+          toggleButton={toggleButton}
+        />
+      ) : null}
     </div>
-  )
+  );
 }
-  
-export default App
+
+export default App;
