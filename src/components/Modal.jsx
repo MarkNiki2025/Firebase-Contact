@@ -20,6 +20,7 @@ export default function Modal({ toggleButtonAddContact, toggleButton }) {
     onSubmit: (values, { resetForm }) => {
       toggleButtonAddContact(values);
       resetForm();
+      console.log(values);
     },
   });
 

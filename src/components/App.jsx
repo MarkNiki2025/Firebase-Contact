@@ -9,7 +9,6 @@ import Modal from "./Modal";
 function App() {
   const [contacts, setContacts] = useState([]);
   const [buttonIsClicked, setbuttonIsClicked] = useState(false);
-  const [buttonAddContactIsClicked, setbuttonAddContactIsClicked] = useState(false);
 
   useEffect(() => {
     async function getContact() {
@@ -26,12 +25,11 @@ function App() {
   }, []);
 
   function toggleButton() {
-    setbuttonIsClicked(!buttonIsClicked);
+    setbuttonIsClicked(true);
   }
 
   function toggleButtonAddContact() {
-    setbuttonAddContactIsClicked(!buttonAddContactIsClicked);
-    console.log(buttonAddContactIsClicked);
+    setbuttonIsClicked(false)
   }
 
   return (
