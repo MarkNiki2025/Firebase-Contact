@@ -1,9 +1,23 @@
 import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useFormik } from "formik";
-
-export default function Modal({ toggleButtonAddContact, toggleButton }) {
+import { collection, addDoc } from "firebase/firestore";
+import {db} from "../config/firebase"
+export default function Modal({ toggleButtonAddContact, toggleButton, toggleContacts }) {
   const [isClosed, setIsClosed] = useState(false);
+  const [nullValues, setNullValues] = useState(false);
+
+  async function addContact(contact) {
+    try {
+      const contactRef = collection(db, "contact");
+      toggleContacts(contact)
+      await addDoc(contactRef, contact);
+
+    }catch(error){
+      console.log(error);
+    } 
+    
+  }
 
   function onClosing() {
     setIsClosed(true);
@@ -18,9 +32,18 @@ export default function Modal({ toggleButtonAddContact, toggleButton }) {
       email: "",
     },
     onSubmit: (values, { resetForm }) => {
-      toggleButtonAddContact(values);
-      resetForm();
-      console.log(values);
+      if (values.name && values.email) {
+        toggleButtonAddContact(values);
+        addContact(values)
+        resetForm();
+        setNullValues(false);
+        console.log(values);
+      } else{
+        setNullValues(true);
+        setTimeout(() => {
+          setNullValues(false);
+        }, 3000);
+      }
     },
   });
 
@@ -40,6 +63,11 @@ export default function Modal({ toggleButtonAddContact, toggleButton }) {
           <AiOutlineClose />
         </button>
       </div>
+      {nullValues && (
+        <p className="text-center text-sm text-red-500 ">
+          Please fill in all fields
+        </p>
+      )}
       <form onSubmit={formik.handleSubmit}>
         <label className="flex flex-col gap-1">
           <span className="text-sm font-medium">Ім'я</span>
