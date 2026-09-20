@@ -3,17 +3,17 @@ import { AiOutlineClose } from "react-icons/ai";
 import { useFormik } from "formik";
 import { collection, addDoc } from "firebase/firestore";
 import {db} from "../config/firebase"
-export default function Modal({ toggleButtonAddContact, toggleButton, toggleContacts }) {
+export default function Modal({ onClose, getContact}) {
   const [isClosed, setIsClosed] = useState(false);
   const [nullValues, setNullValues] = useState(false);
 
   async function addContact(contact) {
     try {
       const contactRef = collection(db, "contact");
-      toggleContacts(contact)
       await addDoc(contactRef, contact);
+      getContact(contact)
 
-    }catch(error){
+    } catch(error){
       console.log(error);
     } 
     
@@ -22,7 +22,7 @@ export default function Modal({ toggleButtonAddContact, toggleButton, toggleCont
   function onClosing() {
     setIsClosed(true);
     setTimeout(() => {
-      toggleButton();
+      onClose();
     }, 300);
   }
 
@@ -33,10 +33,10 @@ export default function Modal({ toggleButtonAddContact, toggleButton, toggleCont
     },
     onSubmit: (values, { resetForm }) => {
       if (values.name && values.email) {
-        toggleButtonAddContact(values);
-        addContact(values)
+        addContact(values);
         resetForm();
         setNullValues(false);
+        onClose();
         console.log(values);
       } else{
         setNullValues(true);

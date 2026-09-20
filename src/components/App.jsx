@@ -5,10 +5,11 @@ import { db } from "../config/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
+import useDisclouse from "../hooks/useDisclouse";
 
 function App() {
   const [contacts, setContacts] = useState([]);
-  const [buttonIsClicked, setbuttonIsClicked] = useState(false);
+  const {onClose,onOpen,buttonIsClicked} = useDisclouse(false);
 
     async function getContact() {
       try {
@@ -30,21 +31,13 @@ function App() {
     getContact();
   },[])
 
-  function toggleButton() {
-    setbuttonIsClicked(!buttonIsClicked);
-  }
-
-  function toggleButtonAddContact() {
-    setbuttonIsClicked(false)
-  }
-
   function handleDelete(id) {
     setContacts((prev) => prev.filter((contact) => contact.id !== id));
   }
 
   return (
     <div className="flex h-screen flex-col">
-      <NavBar setbuttonIsClicked={toggleButton} />
+      <NavBar setbuttonIsClicked={onOpen} />
       {contacts.length > 0 ? (
         contacts.map((item, id) => {
           return <PersonCard key={id} contact = {item} onDelete = {handleDelete}/>;
@@ -55,9 +48,9 @@ function App() {
       {buttonIsClicked ? (
         <Modal
           contacts = {contacts}
-          toggleButtonAddContact={toggleButtonAddContact}
-          toggleButton={toggleButton}
-           toggleContacts={getContact}
+          onClose = {onClose}
+          onOpen = {onOpen}
+          getContact={getContact}
         />
       ) : null}
     </div>
