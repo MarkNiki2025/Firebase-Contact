@@ -1,7 +1,8 @@
+import { toast } from "react-toastify";
 import {db} from "../config/firebase";
 import {deleteDoc,doc} from "firebase/firestore"
 
-export default function PersonCard({ contact, onDelete }) {
+export default function PersonCard({ contact, onDelete, setIsUpdate, setIsContactForEdit}) {
 
   async function deleteCard(id) {
     try {
@@ -9,12 +10,18 @@ export default function PersonCard({ contact, onDelete }) {
       console.log(contact)
       const docRef = doc(db, "contact", id)
       onDelete(id)
-      await deleteDoc(docRef)
+      await deleteDoc(docRef);
+      toast.success("Contact Deleted");
     } catch (error) {
       console.log(error)
     }
-    
   }
+
+  function openEditMode() {
+    setIsContactForEdit(contact);
+    setIsUpdate(true);
+  } 
+    
   return (
     <div className="m-3 flex justify-between rounded-2xl bg-yellow-200 p-2">
       <div className="flex">
@@ -25,8 +32,8 @@ export default function PersonCard({ contact, onDelete }) {
       </span>
       </div>
       <div className="flex justify-center gap-2">
-        <button>
-          <img
+        <button onClick={openEditMode}>
+          <img 
             src="Vector.svg"
             className="rounded-full bg-white/60 p-2 shadow-sm transition-all duration-200 hover:bg-blue-100 hover:shadow-md active:scale-90"
           />

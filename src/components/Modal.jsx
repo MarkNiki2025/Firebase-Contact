@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useFormik } from "formik";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import {db} from "../config/firebase"
-export default function Modal({ onClose, getContact}) {
+import { toast } from "react-toastify";
+
+export default function Modal({ onClose,closeEdit, getContact,search, isUpdate, contacts, contactForEdit}) {
   const [isClosed, setIsClosed] = useState(false);
   const [nullValues, setNullValues] = useState(false);
 
@@ -11,33 +13,63 @@ export default function Modal({ onClose, getContact}) {
     try {
       const contactRef = collection(db, "contact");
       await addDoc(contactRef, contact);
-      getContact(contact)
-
+      getContact(search)
     } catch(error){
       console.log(error);
     } 
     
   }
 
-  function onClosing() {
-    setIsClosed(true);
-    setTimeout(() => {
-      onClose();
-    }, 300);
+  async function addUpdate(contactForEdit, id) {
+    try {
+      const docRef = doc(db, "contact", id);
+      await updateDoc(docRef, contactForEdit);
+      getContact();
+    } catch (error) {
+      console.log(error)
+    }
   }
 
+function onClosing() {
+  setIsClosed(true);
+
+  setTimeout(() => {
+    closeEdit();
+    onClose();
+  }, 300);
+}
+
   const formik = useFormik({
-    initialValues: {
-      name: "",
-      email: "",
-    },
-    onSubmit: (values, { resetForm }) => {
+    initialValues: isUpdate
+      ? {
+        name: contactForEdit.name,
+        email: contactForEdit.email,
+      }
+      : {
+        name: "",
+        email: "",
+      },
+    onSubmit: async (values, { resetForm }) => {
       if (values.name && values.email) {
-        addContact(values);
+
+        if (isUpdate) {
+          await addUpdate(values, contactForEdit.id)
+          toast.success("Contact Updated");
+        }
+
+        if(!isUpdate) {
+          await addContact(values);
+          toast.success("Contact Added");
+        }
+
         resetForm();
         setNullValues(false);
         onClose();
+        closeEdit();
+        
+        console.log(contacts)
         console.log(values);
+
       } else{
         setNullValues(true);
         setTimeout(() => {
@@ -94,7 +126,7 @@ export default function Modal({ onClose, getContact}) {
             type="submit"
             className="bg-yellow text-base m-2 rounded-2xl p-2 font-medium shadow-sm transition-all duration-200 hover:bg-gray-100 active:scale-95"
           >
-            Add contact
+            {isUpdate ? "Update " : "Add "}contact
           </button>
         </div>
       </form>
