@@ -7,13 +7,14 @@ import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import useDisclouse from "../hooks/useDisclouse";
 import {ToastContainer} from 'react-toastify';
+import {IUser} from '../types/typesForApp.module.ts';
 
-function App() {
-  const [contacts, setContacts] = useState([]);
-  const {onClose,onOpen,buttonIsClicked} = useDisclouse(false);
+function App():React.JSX.Element  {
+  const [contacts, setContacts] = useState<IUser[]>([]);
+  const {onClose,onOpen,buttonIsClicked} = useDisclouse();
   const [isUpdate, setIsUpdate] = useState(false);
   const [contactForEdit, setIsContactForEdit] = useState(null);
-  const [allContacts, setAllContacts] = useState(null);
+  const [allContacts, setAllContacts] = useState<IUser[] | null>(null);
   async function getContact() {
   try {
     const contactRef = collection(db, "contact");
@@ -21,19 +22,24 @@ function App() {
 
     const contactLists = contactSnapShot.docs.map((doc) => ({
       id: doc.id,
+      name: doc.data().name,
+      email: doc.data().email,
       ...doc.data(),
     }));
-
+    console.log(contactSnapShot.docs);
     setContacts(contactLists);
-    setAllContacts(contactLists)
+    setAllContacts(contactLists);
   } catch (error) {
     console.log(error);
   }
 }
 
-  function filterContacts (e) {
+  function filterContacts (e:React.ChangeEvent<HTMLInputElement>) {
+    if (allContacts === null) {
+      return;
+    }
     const value = e.target.value;
-    const filteredContacts = allContacts.filter(contact =>
+    const filteredContacts:IUser[] = allContacts.filter(contact =>
       contact.name.toLowerCase().includes(value) ||
       contact.email.toLowerCase().includes(value)
     );
@@ -45,7 +51,7 @@ function App() {
     getContact();
   },[]);
 
-  function handleDelete(id) {
+  function handleDelete(id:string) {
     setContacts((prev) => prev.filter((contact) => contact.id !== id));
   }
 
@@ -67,14 +73,14 @@ function App() {
                       />;
         })
       ) : (
-        <NoContact />
+        <NoContact/>
       )}
       {buttonIsClicked || isUpdate ? (
         <Modal
           contacts = {contacts}
           onClose = {onClose}
-          onOpen = {onOpen}
           getContact={filterContacts}
+          search={filterContacts}
           isUpdate = {isUpdate}
           contactForEdit = {contactForEdit}
           closeEdit = {closeEditMode}
