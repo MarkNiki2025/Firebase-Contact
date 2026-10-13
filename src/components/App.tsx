@@ -12,10 +12,8 @@ import {IUser} from '../types/typesForApp.module.ts';
 function App():React.JSX.Element  {
   const [contacts, setContacts] = useState<IUser[]>([]);
   const {onClose,onOpen,buttonIsClicked} = useDisclouse();
-  const [isUpdate, setIsUpdate] = useState(false);
-  const [contactForEdit, setIsContactForEdit] = useState(null);
-  const [allContacts, setAllContacts] = useState<IUser[] | null>(null);
-  const [search, setSearch] = useState("");
+  const [isUpdate, setIsUpdate] = useState<boolean>(false);
+  const [contactForEdit, setIsContactForEdit] = useState<IUser | null>(null);
   async function getContact() {
     try {
       const contactRef = collection(db, "contact");
@@ -28,7 +26,6 @@ function App():React.JSX.Element  {
         ...doc.data(),
       }));
       setContacts(contactLists);
-      setAllContacts(contactLists);
     } catch (error) {
       console.log(error);
     }
@@ -93,7 +90,6 @@ function App():React.JSX.Element  {
           contacts = {contacts}
           onClose = {onClose}
           getContact={getContact}
-          search={search}
           isUpdate = {isUpdate}
           contactForEdit = {contactForEdit}
           closeEdit = {closeEditMode}

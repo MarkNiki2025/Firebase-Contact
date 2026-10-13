@@ -1,6 +1,8 @@
+import { PropsNavBar } from "../types/typesForApp.module";
 import SearchBar from "./SearchBar";
 
-export default function NavBar({ setbuttonIsClicked, filterContacts }) {
+export default function NavBar({ setbuttonIsClicked, 
+  filterContacts }:PropsNavBar) {
   return (
     <header className="m-5 flex flex-col gap-3">
       <div className="flex h-full items-center justify-center rounded-lg bg-white p-5 font-bold">

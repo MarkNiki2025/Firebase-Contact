@@ -18,7 +18,7 @@ export interface PropsForModal {
 }
 
 export interface PropsNavBar {
-    setbuttonIsClicked: () => void;
+    setbuttonIsClicked: (arg0:boolean) => void;
     filterContacts:(e:React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -28,3 +28,5 @@ export interface PropsPersonCard {
     setIsUpdate: (arg:boolean) => void,
     setIsContactForEdit: (arg0:IUser | null) => void, 
 }
+
+export interface PropsForSearchBar extends PropsNavBar{}

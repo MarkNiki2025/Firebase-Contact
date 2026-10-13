@@ -1,10 +1,12 @@
 import { toast } from "react-toastify";
 import {db} from "../config/firebase";
 import {deleteDoc,doc} from "firebase/firestore"
+import { PropsPersonCard } from "../types/typesForApp.module";
 
-export default function PersonCard({ contact, onDelete, setIsUpdate, setIsContactForEdit}) {
+export default function PersonCard({ contact, onDelete,
+   setIsUpdate, setIsContactForEdit}:PropsPersonCard) {
 
-  async function deleteCard(id) {
+  async function deleteCard(id:string) {
     try {
       console.log(id)
       console.log(contact)
