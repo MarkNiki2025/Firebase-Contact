@@ -2,7 +2,7 @@ import NavBar from "./NavBar";
 import NoContact from "./NoContact";
 import PersonCard from "./PersonCard";
 import { db } from "../config/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import useDisclouse from "../hooks/useDisclouse";
@@ -15,35 +15,48 @@ function App():React.JSX.Element  {
   const [isUpdate, setIsUpdate] = useState(false);
   const [contactForEdit, setIsContactForEdit] = useState(null);
   const [allContacts, setAllContacts] = useState<IUser[] | null>(null);
+  const [search, setSearch] = useState("");
   async function getContact() {
-  try {
-    const contactRef = collection(db, "contact");
-    const contactSnapShot = await getDocs(contactRef);
+    try {
+      const contactRef = collection(db, "contact");
+      const contactSnapShot = await getDocs(contactRef);
 
-    const contactLists = contactSnapShot.docs.map((doc) => ({
-      id: doc.id,
-      name: doc.data().name,
-      email: doc.data().email,
-      ...doc.data(),
-    }));
-    console.log(contactSnapShot.docs);
-    setContacts(contactLists);
-    setAllContacts(contactLists);
-  } catch (error) {
-    console.log(error);
+      const contactLists = contactSnapShot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+        email: doc.data().email,
+        ...doc.data(),
+      }));
+      setContacts(contactLists);
+      setAllContacts(contactLists);
+    } catch (error) {
+      console.log(error);
+    }
   }
-}
 
   function filterContacts (e:React.ChangeEvent<HTMLInputElement>) {
-    if (allContacts === null) {
-      return;
-    }
     const value = e.target.value;
-    const filteredContacts:IUser[] = allContacts.filter(contact =>
-      contact.name.toLowerCase().includes(value) ||
-      contact.email.toLowerCase().includes(value)
-    );
+    const contactRef = collection(db, "contact");
+    
+    onSnapshot(contactRef, (snapshot) => {
+      const contactsList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+        email: doc.data().email,
+        ...doc.data(),
+      }))
+
+
+    const filteredContacts = contactsList.filter(contact => {
+      return(
+      contact.name.toLowerCase().includes(value.toLowerCase()) ||
+      contact.email.toLowerCase().includes(value.toLowerCase())
+    )
+    });
+
     setContacts(filteredContacts);
+    return filteredContacts;
+    })
   }
 
   useEffect(() => {
@@ -79,8 +92,8 @@ function App():React.JSX.Element  {
         <Modal
           contacts = {contacts}
           onClose = {onClose}
-          getContact={filterContacts}
-          search={filterContacts}
+          getContact={getContact}
+          search={search}
           isUpdate = {isUpdate}
           contactForEdit = {contactForEdit}
           closeEdit = {closeEditMode}

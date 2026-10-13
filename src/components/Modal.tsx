@@ -1,29 +1,35 @@
 import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useFormik } from "formik";
-import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc} from "firebase/firestore";
 import {db} from "../config/firebase"
 import { toast } from "react-toastify";
+import {ICreatedUser, IUser} from '../types/typesForApp.module.ts';
+import {PropsForModal} from '../types/typesForApp.module.ts'
 
-export default function Modal({ onClose,closeEdit, getContact,search, isUpdate, contacts, contactForEdit}) {
+export default function Modal({ onClose,closeEdit, 
+  getContact,isUpdate, contacts, contactForEdit}:PropsForModal) {
   const [isClosed, setIsClosed] = useState(false);
   const [nullValues, setNullValues] = useState(false);
 
-  async function addContact(contact) {
+  async function addContact(contact:ICreatedUser) {
     try {
       const contactRef = collection(db, "contact");
       await addDoc(contactRef, contact);
-      getContact(search)
+      getContact();
     } catch(error){
       console.log(error);
     } 
     
   }
 
-  async function addUpdate(contactForEdit, id) {
+  async function addUpdate(contactForEdit:ICreatedUser, id:string) {
     try {
       const docRef = doc(db, "contact", id);
-      await updateDoc(docRef, contactForEdit);
+      await updateDoc(docRef, {
+      name: contactForEdit.name,
+      email: contactForEdit.email,
+    });
       getContact();
     } catch (error) {
       console.log(error)
@@ -42,24 +48,24 @@ function onClosing() {
   const formik = useFormik({
     initialValues: isUpdate
       ? {
-        name: contactForEdit.name,
-        email: contactForEdit.email,
+        name: contactForEdit?.name,
+        email: contactForEdit?.email,
       }
       : {
         name: "",
         email: "",
       },
     onSubmit: async (values, { resetForm }) => {
-      if (values.name && values.email) {
-
-        if (isUpdate) {
-          await addUpdate(values, contactForEdit.id)
-          toast.success("Contact Updated");
-        }
-
-        if(!isUpdate) {
-          await addContact(values);
-          toast.success("Contact Added");
+        if (values.name && values.email) {
+          if (isUpdate && contactForEdit?.id !== undefined) {
+            await addUpdate(values, contactForEdit.id);
+            toast.success("Contact Updated");
+          }
+        if (values.name && values.email) {
+          if(!isUpdate && values !== undefined) {
+            await addContact(values);
+            toast.success("Contact Added");
+          }
         }
 
         resetForm();

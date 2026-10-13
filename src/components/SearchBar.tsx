@@ -1,7 +1,9 @@
 import { CiSearch } from "react-icons/ci";
 import { FaPlus } from "react-icons/fa";
+import { PropsForSearchBar } from "../types/typesForApp.module";
 
-export default function SearchBar({ setbuttonIsClicked, filterContacts}) {
+export default function SearchBar({ setbuttonIsClicked, 
+  filterContacts}:PropsForSearchBar) {
   return (
     <div className="mt-3 flex w-full justify-between gap-2">
       <div className="focus-within:border-gray-dark focus-within:ring-gray/20 flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-white p-1.5 transition-all duration-200 focus-within:ring-2">
